@@ -5,12 +5,13 @@ from bullet import Bullet
 
 
 class Soldier(pygame.sprite.Sprite):
-    def __init__(self, char_type, x, y, scale, speed, ammo):
+    def __init__(self, char_type, x, y, scale, speed, ammo, grenades):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
         self.char_type = char_type
         self.speed = speed
         self.ammo = ammo
+        self.grenades = grenades
         self.health = 100
         self.max_health = self.health
         self.start_ammo = ammo
