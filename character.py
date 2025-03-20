@@ -2,6 +2,7 @@ import pygame
 import os
 from game_config import Config
 from bullet import Bullet
+import random
 
 
 class Soldier(pygame.sprite.Sprite):
@@ -26,6 +27,11 @@ class Soldier(pygame.sprite.Sprite):
         self.action = 0
         self.update_time = pygame.time.get_ticks()
         self.bullet_group = pygame.sprite.Group()
+        # ai specific variables
+        self.move_counter = 0
+        self.idling = False
+        self.idling_counter = 0
+        self.vision = pygame.Rect(0, 0, 150, 20)
 
         # load all images for the players
         animation_types = ['Idle', 'Run', 'Jump', 'Death']
@@ -96,8 +102,39 @@ class Soldier(pygame.sprite.Sprite):
                             self.rect.centery, self.direction)  # No need to pass shooter now
             Config.bullet_group.add(bullet)  # add the bullet to the bullet group
             self.ammo -= 1  # reduce the ammo by 1
-            print(f"Ammo left: {self.ammo}")
             return bullet  # Return the bullet
+
+    def ai(self, player):
+        if self.alive and player.alive:
+            if random.randint(1, 200) == 1:
+                self.update_action(0)  # 0: idle
+                self.idling = True
+                self.idling_counter = 50
+            # check if the ai in near the player
+            if self.vision.colliderect(player.rect):
+                # stop running and face the player
+                self.update_action(0)  # 0: idle
+                # shoot
+                self.shoot()
+            else:
+                if self.idling == False:
+                    if self.direction == 1:
+                        ai_moving_right = True
+                    else:
+                        ai_moving_right = False
+                    ai_moving_left = not ai_moving_right
+                    self.move(ai_moving_left, ai_moving_right)
+                    self.update_action(1)  # 1: run
+                    self.move_counter += 1
+                    self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+
+                    if self.move_counter > Config.TILE_SIZE:
+                        self.direction *= -1
+                        self.move_counter *= -1
+                    else:
+                        self.idling_counter -= 1
+                        if self.idling_counter <= 0:
+                            self.idling = False
 
     def update_animation(self):
         # update animation

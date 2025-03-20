@@ -1,9 +1,11 @@
 import pygame
+from game_config import Config
 from character import Soldier
 from grenades import Grenade
 from item import Item
-from game_config import Config
 from health_bar import HealthBar
+from world import World
+import csv
 
 
 class Game:
@@ -31,6 +33,9 @@ class Game:
         self.explosion_group = Config.explosion_group
         self.enemy_group = Config.enemy_group
         self.item_box_group = Config.item_box_group
+        self.decoration_group = Config.decoration_group
+        self.water_group = Config.water_group
+        self.exit_group = Config.exit_group
 
         item_box = Item('Health', 100, 250)
         self.item_box_group.add(item_box)
@@ -40,12 +45,27 @@ class Game:
         self.item_box_group.add(item_box)
 
         # Create player instance
-        self.player = Soldier('player', 200, 200, 3, 5, 20, 5)
+        self.player = Soldier('player', 200, 200, 1.65, 5, 20, 5)
         self.health_bar = HealthBar(10, 10, self.player.health, self.player.health)
-        self.enemy = Soldier('enemy', 400, 200, 3, 5, 20, 0)
-        self.enemy2 = Soldier('enemy', 300, 300, 3, 5, 20, 0)
+        self.enemy = Soldier('enemy', 400, 200, 1.65, 2, 20, 0)
+        self.enemy2 = Soldier('enemy', 300, 200, 1.65, 2, 20, 0)
         self.enemy_group.add(self.enemy)
         self.enemy_group.add(self.enemy2)
+
+        # create empty tile list
+        world_data = []
+        for row in range(Config.ROWS):
+            r = [-1] * Config.COLS
+            world_data.append(r)
+        # load in level data and create world
+        with open(f'level_{Config.level}_data.csv', newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for x, row in enumerate(reader):
+                for y, tile in enumerate(row):
+                    world_data[x][y] = int(tile)
+
+        self.world = World()
+        self.player, self.health_bar = self.world.process_data(world_data)
 
     def draw_text(self, text, font, text_col, x, y):
         img = font.render(text, True, text_col)
@@ -78,8 +98,18 @@ class Game:
             self.player.draw(self.screen)
 
             for self.enemy in Config.enemy_group:
+                self.enemy.ai(self.player)
                 self.enemy.update()
                 self.enemy.draw(self.screen)
+
+            # update and draw world
+            self.decoration_group.update()
+            self.water_group.update()
+            self.exit_group.update()
+            self.world.draw(self.screen)
+            self.decoration_group.draw(self.screen)
+            self.water_group.draw(self.screen)
+            self.exit_group.draw(self.screen)
 
             # update and draw bullet
             self.bullet_group.update(self.player, self.enemy)
@@ -151,3 +181,4 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.run()
+

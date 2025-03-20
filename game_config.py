@@ -4,20 +4,27 @@ import pygame
 class Config:
     GRAVITY = 0.75
     SCREEN_WIDTH = 800
+    SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
     ANIMATION_COOLDOWN = 100
-    TILE_SIZE = 50
+    ROWS = 16
+    COLS = 150
+    TILE_SIZE = SCREEN_HEIGHT // ROWS
+    TILE_TYPE = 21
+    level = 1
     EXPLOSION_SPEED = 4
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
-    SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 
     bullet_group = pygame.sprite.Group()
     grenade_group = pygame.sprite.Group()
     explosion_group = pygame.sprite.Group()
     enemy_group = pygame.sprite.Group()
     item_box_group = pygame.sprite.Group()
+    decoration_group = pygame.sprite.Group()
+    water_group = pygame.sprite.Group()
+    exit_group = pygame.sprite.Group()
 
     @staticmethod
     def get_font():
