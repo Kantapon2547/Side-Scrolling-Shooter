@@ -11,21 +11,33 @@ class Grenade(pygame.sprite.Sprite):
         self.image = pygame.image.load('img/icons/grenade.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.direction = direction
         self.player = player
 
-    def update(self):
+    def update(self, world):
         self.vel_y += Config.GRAVITY
         dx = self.direction * self.speed
         dy = self.vel_y
 
-        if self.rect.bottom + dy > 300:
-            dy = 300 - self.rect.bottom
-            self.speed = 0
-
-        if self.rect.left + dx < 0 or self.rect.right + dx > Config.SCREEN_WIDTH:
-            self.direction *= -1
-            dx = self.direction * self.speed
+        # check for collision with level
+        for tile in world.obstacle_list:
+            # check collision with walls
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                self.direction *= -1
+                dx = self.direction * self.speed
+            # check for collision in the y direction
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                self.speed = 0
+                # check if below the ground, i.e. thrown up
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                # check if above the ground, i.e. falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    dy = tile[1].top - self.rect.bottom
 
         self.rect.x += dx
         self.rect.y += dy
@@ -62,6 +74,8 @@ class Explosion(pygame.sprite.Sprite):
         self.counter = 0
 
     def update(self):
+        # scroll
+        self.rect.x += Config.screen_scroll
         # update explosion animation
         self.counter += 1
 

@@ -49,6 +49,8 @@ class Soldier(pygame.sprite.Sprite):
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
         self.enemy = None
 
@@ -59,8 +61,9 @@ class Soldier(pygame.sprite.Sprite):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
 
-    def move(self, moving_left, moving_right):
+    def move(self, moving_left, moving_right, world):
         # reset movement variables
+        screen_scroll = 0
         dx = 0
         dy = 0
 
@@ -83,17 +86,63 @@ class Soldier(pygame.sprite.Sprite):
         # apply gravity
         self.vel_y += Config.GRAVITY
         if self.vel_y > 10:
-            self.vel_y
+            self.vel_y = 10
+
+        # Update vertical position
         dy += self.vel_y
 
         # check collision with floor
-        if self.rect.bottom + dy > 300:
-            dy = 300 - self.rect.bottom
-            self.in_air = False
+        for tile in world.obstacle_list:
+            # check collision in the x direction
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+            # check for collision in the y direction
+                if self.char_type == 'enemy':
+                    self.direction *= -1
+                    self.move_counter = 0
+
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                # check if below the ground, i.e. jumping
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                # check if above the ground, i.e. falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile[1].top - self.rect.bottom
+
+        # check for collision with water
+        if pygame.sprite.spritecollide(self, Config.water_group, False):
+            self.health = 0
+
+        # check for collision with exit
+        level_complete = False
+        if pygame.sprite.spritecollide(self, Config.exit_group, False):
+            level_complete = True
+
+        # check if fallen off the map
+        if self.rect.bottom > Config.SCREEN_HEIGHT:
+            self.health = 0
+
+        # check if going off the edges of the screen
+        if self.char_type == 'player':
+            if self.rect.left + dx < 0 or self.rect.right + dx > Config.SCREEN_WIDTH:
+                dx = 0
 
         # update rectangle position
         self.rect.x += dx
         self.rect.y += dy
+
+        # update scroll based on player position
+        if self.char_type == 'player':
+            if (self.rect.right > Config.SCREEN_WIDTH - Config.SCROLL_THRESH and Config.bg_scroll < (
+                    world.level_length * Config.TILE_SIZE) - Config.SCREEN_WIDTH) \
+                    or (self.rect.left < Config.SCROLL_THRESH and Config.bg_scroll > abs(dx)):
+                self.rect.x -= dx
+                screen_scroll = -dx
+
+        return screen_scroll, level_complete
 
     def shoot(self):
         if self.shoot_cooldown == 0 and self.ammo > 0:
@@ -104,9 +153,9 @@ class Soldier(pygame.sprite.Sprite):
             self.ammo -= 1  # reduce the ammo by 1
             return bullet  # Return the bullet
 
-    def ai(self, player):
+    def ai(self, player, world):
         if self.alive and player.alive:
-            if random.randint(1, 200) == 1:
+            if self.idling == False and random.randint(1, 200) == 1:
                 self.update_action(0)  # 0: idle
                 self.idling = True
                 self.idling_counter = 50
@@ -123,7 +172,7 @@ class Soldier(pygame.sprite.Sprite):
                     else:
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
-                    self.move(ai_moving_left, ai_moving_right)
+                    self.move(ai_moving_left, ai_moving_right, world)
                     self.update_action(1)  # 1: run
                     self.move_counter += 1
                     self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
@@ -136,8 +185,10 @@ class Soldier(pygame.sprite.Sprite):
                         if self.idling_counter <= 0:
                             self.idling = False
 
+        # Adjust AI for screen scroll
+        self.rect.x += Config.screen_scroll
+
     def update_animation(self):
-        # update animation
         # update image depending on current frame
         self.image = self.animation_list[self.action][self.frame_index]
         # check if enough time has passed since the last update

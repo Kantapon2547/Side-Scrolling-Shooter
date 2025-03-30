@@ -12,26 +12,37 @@ for tile_index in range(Config.TILE_TYPE):
     img_list.append(tile_img)
 
 
-    class Decoration(pygame.sprite.Sprite):
-        def __init__(self, img, x, y):
-            pygame.sprite.Sprite.__init__(self)
-            self.image = img
-            self.rect = self.image.get_rect()
-            self.rect.midtop = (x + Config.TILE_SIZE // 2, y + (Config.TILE_SIZE - self.image.get_height()))
+class Decoration(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + Config.TILE_SIZE // 2, y + (Config.TILE_SIZE - self.image.get_height()))
 
-    class Water(pygame.sprite.Sprite):
-        def __init__(self, img, x, y):
-            pygame.sprite.Sprite.__init__(self)
-            self.image = img
-            self.rect = self.image.get_rect()
-            self.rect.midtop = (x + Config.TILE_SIZE // 2, y + (Config.TILE_SIZE - self.image.get_height()))
+    def update(self):
+        self.rect.x += Config.screen_scroll
 
-    class Exit(pygame.sprite.Sprite):
-        def __init__(self, img, x, y):
-            pygame.sprite.Sprite.__init__(self)
-            self.image = img
-            self.rect = self.image.get_rect()
-            self.rect.midtop = (x + Config.TILE_SIZE // 2, y + (Config.TILE_SIZE - self.image.get_height()))
+
+class Water(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + Config.TILE_SIZE // 2, y + (Config.TILE_SIZE - self.image.get_height()))
+
+    def update(self):
+        self.rect.x += Config.screen_scroll
+
+
+class Exit(pygame.sprite.Sprite):
+    def __init__(self, img, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.midtop = (x + Config.TILE_SIZE // 2, y + (Config.TILE_SIZE - self.image.get_height()))
+
+    def update(self):
+        self.rect.x += Config.screen_scroll
 
 
 class World:
@@ -39,6 +50,9 @@ class World:
         self.obstacle_list = []
 
     def process_data(self, data):
+        self.level_length = len(data[0])
+
+        # iterate through each value in level data file
         for y, row in enumerate(data):
             for x, tile in enumerate(row):
                 if tile >= 0:
@@ -47,7 +61,8 @@ class World:
                     img_rect.x = x * Config.TILE_SIZE
                     img_rect.y = y * Config.TILE_SIZE
                     tile_data = (img, img_rect)
-                    if 0 <= tile <= 8:
+
+                    if tile >= 0 and tile <= 8:
                         self.obstacle_list.append(tile_data)
                     elif tile >= 9 and tile <= 10:
                         water = Water(img, x * Config.TILE_SIZE, y * Config.TILE_SIZE)
@@ -71,11 +86,12 @@ class World:
                         item_box = Item('Health', x * Config.TILE_SIZE, y * Config.TILE_SIZE)
                         Config.item_box_group.add(item_box)
                     elif tile == 20:  # create exit
-                        exit = Exit(img, x * Config.TILE_SIZE, y * Config.TILE_SIZE)
-                        Config.exit_group.add(exit)
+                        exits = Exit(img, x * Config.TILE_SIZE, y * Config.TILE_SIZE)
+                        Config.exit_group.add(exits)
 
         return player, health_bar  # Move the return outside of the loop
 
     def draw(self, screen):
         for tile in self.obstacle_list:
+            tile[1][0] += Config.screen_scroll
             screen.blit(tile[0], tile[1])

@@ -11,13 +11,16 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.direction = direction
 
-    def update(self, player, enemy):
-        self.rect.x += (self.direction * self.speed)
+    def update(self, player, enemy, world):
+        self.rect.x += (self.direction * self.speed) + Config.screen_scroll
 
-        # Remove bullet if it goes off-screen
+        # Check if bullet it goes off-screen
         if self.rect.right < 0 or self.rect.left > Config.SCREEN_WIDTH:
             self.kill()
-
+        # Check for collision with level
+        for tile in world.obstacle_list:
+            if tile[1].colliderect(self.rect):
+                self.kill()
         # Check for collision with player or enemy
         if pygame.sprite.spritecollide(player, Config.bullet_group, False):
             if player.alive:
@@ -28,4 +31,3 @@ class Bullet(pygame.sprite.Sprite):
                 if enemy.alive:
                     enemy.health -= 25
                     self.kill()
-

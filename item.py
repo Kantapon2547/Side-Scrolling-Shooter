@@ -23,6 +23,8 @@ class Item(pygame.sprite.Sprite):
         self.rect.midtop = (x + Config.TILE_SIZE // 2, y + (Config.TILE_SIZE - self.image.get_height()))
 
     def update(self, player):
+        self.rect.x += Config.screen_scroll
+
         if pygame.sprite.collide_rect(self, player):
             if self.item_type == 'Health':
                 player.health += 25
@@ -32,5 +34,5 @@ class Item(pygame.sprite.Sprite):
                 player.ammo += 15
             elif self.item_type == 'Grenade':
                 player.grenades += 3
-
+            # delete the item box
             self.kill()

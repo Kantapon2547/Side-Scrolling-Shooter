@@ -8,9 +8,6 @@ class Level:
     def __init__(self):
         pygame.init()
 
-        # Game window settings
-        # self.SCREEN_WIDTH = 800
-        # self.SCREEN_HEIGHT = 640
         self.LOWER_MARGIN = 100
         self.SIDE_MARGIN = 300
 
@@ -18,11 +15,7 @@ class Level:
             (Config.SCREEN_WIDTH + self.SIDE_MARGIN, Config.SCREEN_HEIGHT + self.LOWER_MARGIN))
         pygame.display.set_caption('Level Editor')
 
-        # Game variables
-        # self.ROWS = 16
         self.MAX_COLS = 150
-        # self.TILE_SIZE = self.SCREEN_HEIGHT // self.ROWS
-        # self.TILE_TYPES = 21
         self.level = 0
         self.current_tile = 0
         self.scroll_left = False
@@ -127,9 +120,15 @@ class Level:
                     writer.writerows(self.world_data)
 
             if self.load_button.draw(self.screen):
+                # load in level data
+                # reset scroll back to the start of the level
+                self.scroll = 0
                 with open(f'level_{self.level}_data.csv', newline='') as csvfile:
                     reader = csv.reader(csvfile, delimiter=',')
-                    self.world_data = [[int(tile) for tile in row] for row in reader]
+                    # self.world_data = [[int(tile) for tile in row] for row in reader]
+                    for x, row in enumerate(reader):
+                        for y, tile in enumerate(row):
+                            self.world_data[x][y] = int(tile)
 
             # draw tile panel and tiles
             pygame.draw.rect(self.screen, self.GREEN, (Config.SCREEN_WIDTH, 0, self.SIDE_MARGIN, Config.SCREEN_HEIGHT))
