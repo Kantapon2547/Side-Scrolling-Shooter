@@ -41,4 +41,4 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 
 Homepage : https://github.com/Kantapon2547/Side-Scrolling-Shooter
 
-Proposal : https://github.com/Kantapon2547/Airline-Route-Mapper/wiki/Project-proposal
+Proposal : 
