@@ -1,5 +1,9 @@
 import pygame
 
+# Initialize pygame and mixer
+pygame.init()
+pygame.mixer.init()
+
 
 class Config:
     GRAVITY = 0.75
@@ -20,6 +24,7 @@ class Config:
     GREEN = (0, 255, 0)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    PINK = (235, 65, 54)
 
     bullet_group = pygame.sprite.Group()
     grenade_group = pygame.sprite.Group()
@@ -29,6 +34,17 @@ class Config:
     decoration_group = pygame.sprite.Group()
     water_group = pygame.sprite.Group()
     exit_group = pygame.sprite.Group()
+
+    # load music and sounds
+    pygame.mixer.music.load('audio/music2.mp3')
+    pygame.mixer.music.set_volume(0.3)
+    pygame.mixer.music.play(-1, 0.0, 5000)
+    jump_fx = pygame.mixer.Sound('audio/jump.wav')
+    jump_fx.set_volume(0.5)
+    shot_fx = pygame.mixer.Sound('audio/shot.wav')
+    shot_fx.set_volume(0.5)
+    grenade_fx = pygame.mixer.Sound('audio/grenade.wav')
+    grenade_fx.set_volume(0.5)
 
     @staticmethod
     def get_font():

@@ -151,6 +151,7 @@ class Soldier(pygame.sprite.Sprite):
                             self.rect.centery, self.direction)  # No need to pass shooter now
             Config.bullet_group.add(bullet)  # add the bullet to the bullet group
             self.ammo -= 1  # reduce the ammo by 1
+            Config.shot_fx.play()
             return bullet  # Return the bullet
 
     def ai(self, player, world):

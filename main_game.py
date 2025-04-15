@@ -19,6 +19,7 @@ class Game:
         self.grenade = False
         self.grenade_thrown = False
         self.start_game = False
+        self.start_intro = False
         self.bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
         self.grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
         # load images
@@ -36,7 +37,10 @@ class Game:
         self.restart_img = pygame.image.load('img/restart_btn.png').convert_alpha()
 
         self.BG = (144, 201, 120)
-        # self.BG = (255, 253, 208)
+
+        # create screen fades
+        self.intro_fade = ScreenFade(self.screen, 1, Config.BLACK, 4)
+        self.death_fade = ScreenFade(self.screen, 2, Config.PINK, 4)
 
         # create button
         self.start_button = button.Button(Config.SCREEN_WIDTH // 2 - 130, Config.SCREEN_HEIGHT // 2 - 150,
@@ -118,6 +122,7 @@ class Game:
                 self.screen.fill(self.BG)
                 if self.start_button.draw(self.screen):
                     self.start_game = True
+                    self.start_intro = True
                 if self.exit_button.draw(self.screen):
                     self.running = False
 
@@ -164,6 +169,12 @@ class Game:
                 self.item_box_group.update(self.player)
                 self.item_box_group.draw(self.screen)
 
+                # show intro
+                if self.start_intro == True:
+                    if self.intro_fade.fade():
+                        self.start_intro = False
+                        self.intro_fade.fade_counter = 0
+
                 # update player actions
                 if self.player.alive:
                     if self.shoot:  # Only shoot when Space is pressed
@@ -187,7 +198,6 @@ class Game:
                         self.player.update_action(0)  # 0: idle
                     if self.moving_left or self.moving_right:
                         Config.screen_scroll, level_complete = self.player.move(self.moving_left, self.moving_right, self.world)
-                        print(f"Screen Scroll: {Config.screen_scroll}, Level Complete: {level_complete}")
 
                         Config.bg_scroll -= Config.screen_scroll
                         if level_complete:
@@ -208,18 +218,21 @@ class Game:
                         Config.screen_scroll = 0
                 else:
                     Config.screen_scroll = 0
-                    if self.restart_button.draw(self.screen):
-                        Config.bg_scroll = 0
-                        world_data = self.reset_level()
-                        # load in level data and create world
-                        with open(f'level_{Config.level}_data.csv', newline='') as csvfile:
-                            reader = csv.reader(csvfile, delimiter=',')
-                            for x, row in enumerate(reader):
-                                for y, tile in enumerate(row):
-                                    world_data[x][y] = int(tile)
+                    if self.death_fade.fade():
+                        if self.restart_button.draw(self.screen):
+                            self.death_fade.fade_counter = 0
+                            self.start_intro = True
+                            Config.bg_scroll = 0
+                            world_data = self.reset_level()
+                            # load in level data and create world
+                            with open(f'level_{Config.level}_data.csv', newline='') as csvfile:
+                                reader = csv.reader(csvfile, delimiter=',')
+                                for x, row in enumerate(reader):
+                                    for y, tile in enumerate(row):
+                                        world_data[x][y] = int(tile)
 
-                        self.world = World()
-                        self.player, self.health_bar = self.world.process_data(world_data)
+                            self.world = World()
+                            self.player, self.health_bar = self.world.process_data(world_data)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -235,6 +248,7 @@ class Game:
                         self.grenade = True
                     if event.key == pygame.K_w and self.player.alive:
                         self.player.jump = True
+                        Config.jump_fx.play()
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
 
@@ -252,6 +266,30 @@ class Game:
             pygame.display.update()
 
         pygame.quit()
+
+
+class ScreenFade():
+    def __init__(self, screen, direction, colour, speed):
+        self.screen = screen
+        self.direction = direction
+        self.colour = colour
+        self.speed = speed
+        self.fade_counter = 0
+
+    def fade(self):
+        fade_complete = False
+        self.fade_counter += self.speed
+        if self.direction == 1:  # whole screen fade
+            pygame.draw.rect(self.screen, self.colour, (0 - self.fade_counter, 0, Config.SCREEN_WIDTH // 2, Config.SCREEN_HEIGHT))
+            pygame.draw.rect(self.screen, self.colour, (Config.SCREEN_WIDTH // 2 + self.fade_counter, 0, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT))
+            pygame.draw.rect(self.screen, self.colour, (0, 0 - self.fade_counter, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT // 2))
+            pygame.draw.rect(self.screen, self.colour, (0, Config.SCREEN_HEIGHT // 2 + self.fade_counter, Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT))
+        if self.direction == 2:  # vertical screen fade down
+            pygame.draw.rect(self.screen, self.colour, (0, 0, Config.SCREEN_WIDTH, 0 + self.fade_counter))
+        if self.fade_counter >= Config.SCREEN_WIDTH:
+            fade_complete = True
+
+        return fade_complete
 
 
 if __name__ == "__main__":

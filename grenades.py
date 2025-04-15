@@ -46,6 +46,7 @@ class Grenade(pygame.sprite.Sprite):
         self.timer -= 1
         if self.timer <= 0:
             self.kill()
+            Config.grenade_fx.play()
             explosion = Explosion(self.rect.x, self.rect.y, 0.5)
             Config.explosion_group.add(explosion)
             # do damage to anyone that is nearby
