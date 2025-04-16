@@ -29,8 +29,8 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 2. **Download the Repository**: Clone or download the repository to your local machine.
 
 3. **Prepare Data**: Ensure you have the following CSV files in the project directory:
-   - `.csv`: Contains information about airports, including their IDs, names, cities, countries, and coordinates.
-   - `.csv`: Contains information about airline routes, including the origin and destination airport IDs.
+   - `level_1_.csv`: Contains i data for level 1 of a game or application.
+   - `level_2_.csv`: Contains i data for level 2 of a game or application.
 
 4. **Run the Application**: Open a terminal or command prompt, navigate to the project directory, and run the following command:
     ```bash
