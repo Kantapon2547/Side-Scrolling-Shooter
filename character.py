@@ -1,8 +1,19 @@
 import pygame
 import os
+import csv
 from game_config import Config
 from bullet import Bullet
 import random
+import time
+
+# Initialize the CSV logging (if not already initialized)
+DATA_FILE = 'data_collection.csv'
+
+if not os.path.exists(DATA_FILE):
+    with open(DATA_FILE, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Timestamp', 'Health Before', 'Health After', 'Health Lost', 'Bullets Fired',
+                         'Deaths', 'Grenades Thrown'])
 
 
 class Soldier(pygame.sprite.Sprite):
@@ -32,6 +43,15 @@ class Soldier(pygame.sprite.Sprite):
         self.idling = False
         self.idling_counter = 0
         self.vision = pygame.Rect(0, 0, 150, 20)
+        # data_collection
+        self.bullets_fired = 0
+        self.deaths_per_level = 0
+        self.grenades_thrown = 0
+        self.last_shoot_time = time.time()  # To track when the last shot was fired
+        self.data_collection_interval = 60
+        self.current_level = Config.level
+        self.prev_grenades = self.grenades
+
 
         # load all images for the players
         animation_types = ['Idle', 'Run', 'Jump', 'Death']
@@ -51,12 +71,77 @@ class Soldier(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+        self.font = pygame.font.SysFont('Arial', 30)
 
         self.enemy = None
+
+        # Initialize last health value for tracking health changes
+        if not hasattr(self, '_last_health'):
+            self._last_health = self.health
 
     def update(self):
         self.update_animation()
         self.check_alive()
+        # Display current level on the screen
+
+        # Track health change only for player
+        if self.char_type == 'player':
+            # Log the shot data
+            if time.time() - self.last_shoot_time >= self.data_collection_interval:
+                self.last_shoot_time = time.time()  # Update the last shoot time
+                timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+                # Write the data to the CSV
+                with open(DATA_FILE, 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([timestamp, self.bullets_fired, self.ammo])
+
+            if self.grenades < self.prev_grenades:
+                self.grenades_thrown += (self.prev_grenades - self.grenades)
+                timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+                with open(DATA_FILE, 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([timestamp, self.grenades_thrown])
+
+                print(f"Grenade thrown! Total: {self.grenades_thrown}")
+
+            self.prev_grenades = self.grenades  # Always update
+
+            if self.health < self._last_health:
+                damage_taken = self._last_health - self.health
+                timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+
+                # Check if file exists or is empty to write the header once
+                if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+                    with open(DATA_FILE, 'w', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow([
+                            'Timestamp',
+                            'Level',
+                            'Previous Health',
+                            'Current Health',
+                            'Health Lost',
+                            'Bullets Fired',
+                            'Deaths',
+                            'Grenades Thrown'
+                        ])
+
+                # Now append the data
+                with open(DATA_FILE, 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([
+                        timestamp,
+                        self.current_level,
+                        self._last_health,
+                        self.health,
+                        damage_taken,
+                        self.bullets_fired,
+                        self.deaths_per_level,
+                        self.grenades_thrown
+                    ])
+
+                self._last_health = self.health  # Update to new health
+
         # update cooldown
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
@@ -151,7 +236,9 @@ class Soldier(pygame.sprite.Sprite):
                             self.rect.centery, self.direction)  # No need to pass shooter now
             Config.bullet_group.add(bullet)  # add the bullet to the bullet group
             self.ammo -= 1  # reduce the ammo by 1
+            self.bullets_fired += 1  # Increase bullets fired counter
             Config.shot_fx.play()
+
             return bullet  # Return the bullet
 
     def ai(self, player, world):
@@ -166,6 +253,7 @@ class Soldier(pygame.sprite.Sprite):
                 self.update_action(0)  # 0: idle
                 # shoot
                 self.shoot()
+                # randomly throw grenade if available
             else:
                 if self.idling == False:
                     if self.direction == 1:
@@ -217,6 +305,18 @@ class Soldier(pygame.sprite.Sprite):
             self.speed = 0
             self.alive = False
             self.update_action(3)
+            self.log_death()
+            if self.char_type == 'player':  # Ensure only player death counts
+                self.deaths_per_level += 1  # Increment death count when player dies
+
+    def log_death(self):
+        # Log death information to CSV (if it's a player character)
+        if self.char_type == 'player':
+            timestamp = time.strftime('%Y-%m-%d %H:%M:%S')
+            with open(DATA_FILE, 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([timestamp, self._last_health, self.health, 0, self.bullets_fired,
+                                 self.deaths_per_level, self.grenades_thrown])
 
     def draw(self, screen):
         screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
