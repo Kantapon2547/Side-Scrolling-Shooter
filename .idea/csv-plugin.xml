@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\level_3_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>

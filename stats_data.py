@@ -94,6 +94,59 @@ class StatisticsManager:
         plt.tight_layout()
         plt.show()
 
+    def record_deaths_per_level(self):
+        """Record the number of deaths per level per playthrough."""
+        if 'Deaths' not in self.df.columns or 'Level' not in self.df.columns:
+            print("Required columns 'Deaths' or 'Level' not found in CSV.")
+            return
+
+        # Create a new column that stores the deaths per playthrough
+        self.df['Deaths Per Playthrough'] = self.df.groupby('Level')['Deaths'].transform('sum')
+        print("Deaths per Level Per Playthrough recorded successfully.")
+
+    def analyze_max_deaths(self):
+        """Find the hardest level by identifying the level with maximum deaths."""
+        if 'Deaths' not in self.df.columns or 'Level' not in self.df.columns:
+            print("Required columns 'Deaths' or 'Level' not found in CSV.")
+            return
+
+        # Group by 'Level' and calculate the max deaths per level
+        max_deaths = self.df.groupby('Level')['Deaths'].max().reset_index()
+        hardest_level = max_deaths[max_deaths['Deaths'] == max_deaths['Deaths'].max()]
+
+        print("Level with Maximum Deaths (Hardest Level):")
+        print(hardest_level)
+        return hardest_level
+
+    def analyze_death_variation(self):
+        """Analyze the variation in deaths per level using standard deviation."""
+        if 'Deaths' not in self.df.columns or 'Level' not in self.df.columns:
+            print("Required columns 'Deaths' or 'Level' not found in CSV.")
+            return
+
+        # Group by 'Level' and calculate the standard deviation of deaths
+        death_variation = self.df.groupby('Level')['Deaths'].std().reset_index()
+        death_variation = death_variation.rename(columns={'Deaths': 'Death Std Dev'})
+
+        print("Standard Deviation of Deaths Per Level:")
+        print(death_variation)
+        return death_variation
+
+    def analyze_death_difficulty(self):
+        """Analyze difficulty based on maximum deaths and standard deviation."""
+        max_deaths = self.analyze_max_deaths()
+        death_variation = self.analyze_death_variation()
+
+        # Merge both dataframes on 'Level'
+        difficulty_analysis = pd.merge(max_deaths, death_variation, on='Level')
+
+        # Analyze for difficult/inconsistent levels
+        difficulty_analysis['Difficulty Score'] = difficulty_analysis['Deaths'] + difficulty_analysis['Death Std Dev']
+
+        print("\nDifficulty Analysis (Maximum Deaths + Standard Deviation):")
+        print(difficulty_analysis)
+        return difficulty_analysis
+
     def show_all_stats(self, back_callback=None):
         """Displays all available statistics graphs."""
         import matplotlib
@@ -160,9 +213,21 @@ class StatisticsManager:
                 else:
                     ax.text(0.5, 0.5, "Required columns not found", ha='center', va='center')
 
-            # elif choice == 'Deaths Per Level Analysis':
-            #
-            #
+            elif choice == 'Deaths Per Level Analysis':
+                # Analyze deaths and show the results in a text box
+                hardest_level = self.analyze_max_deaths()
+                death_variation = self.analyze_death_variation()
+                difficulty_report = self.analyze_death_difficulty()
+
+                # Create a Text widget to display the death analysis
+                result_text.delete(1.0, tk.END)  # Clear any previous text
+                result_text.insert(tk.END, "Hardest Level (Maximum Deaths):\n")
+                result_text.insert(tk.END, hardest_level.to_string(index=False))
+                result_text.insert(tk.END, "\n\nDeath Variation (Standard Deviation):\n")
+                result_text.insert(tk.END, death_variation.to_string(index=False))
+                result_text.insert(tk.END, "\n\nDifficulty Report (Max Deaths + Std Dev):\n")
+                result_text.insert(tk.END, difficulty_report.to_string(index=False))
+
             canvas.draw()
 
         # Setup GUI
@@ -178,6 +243,7 @@ class StatisticsManager:
             'Bullets Fired Over Games',
             'Health Remaining by Level',
             'Grenade Usage by Level',
+            'Deaths Per Level Analysis'
         ])
         combo.pack(pady=5)
         combo.bind("<<ComboboxSelected>>", lambda e: update_plot(combo.get()))
@@ -185,6 +251,10 @@ class StatisticsManager:
         fig = Figure(figsize=(6, 4))
         canvas = FigureCanvasTkAgg(fig, master=win)
         canvas.get_tk_widget().pack()
+
+        # Add a Text widget to display detailed stats
+        result_text = tk.Text(win, wrap=tk.WORD, height=10, width=50, font=("Arial", 10))
+        result_text.pack(pady=10)
 
         def go_back():
             win.destroy()
