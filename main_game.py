@@ -5,6 +5,7 @@ from grenades import Grenade
 from world import World
 import csv
 import button
+from stats_data import StatisticsManager
 
 
 class Game:
@@ -19,7 +20,9 @@ class Game:
         self.grenade = False
         self.grenade_thrown = False
         self.start_game = False
+        self.kill_count = 0
         self.start_intro = False
+        self.stats = StatisticsManager()
         self.bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
         self.grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
         # load images
@@ -27,26 +30,40 @@ class Game:
         self.pine2_img = pygame.image.load('img/Background/pine2.png').convert_alpha()
         self.mountain_img = pygame.image.load('img/Background/mountain.png').convert_alpha()
         self.sky_img = pygame.image.load('img/Background/sky_cloud.png').convert_alpha()
+        self.stats_scroll_position = 0
 
         self.clock = pygame.time.Clock()
         self.FPS = 60
 
         # button images
         self.start_img = pygame.image.load('img/start_btn.png').convert_alpha()
+        self.stats_img = pygame.image.load('img/stats_btn.png').convert_alpha()
         self.exit_img = pygame.image.load('img/exit_btn.png').convert_alpha()
         self.restart_img = pygame.image.load('img/restart_btn.png').convert_alpha()
 
-        self.BG = (144, 201, 120)
+        self.BG = (0, 0, 0)
+        self.font = pygame.font.SysFont('Arial', 30)
 
         # create screen fades
         self.intro_fade = ScreenFade(self.screen, 1, Config.BLACK, 4)
         self.death_fade = ScreenFade(self.screen, 2, Config.PINK, 4)
 
         # create button
-        self.start_button = button.Button(Config.SCREEN_WIDTH // 2 - 130, Config.SCREEN_HEIGHT // 2 - 150,
-                                          self.start_img, 1)
-        self.exit_button = button.Button(Config.SCREEN_WIDTH // 2 - 110, Config.SCREEN_HEIGHT // 2 + 50,
-                                         self.exit_img, 1)
+        button_scale = 0.8
+        button_scale2 = 0.9
+        button_width = self.start_img.get_width() * button_scale
+        center_x = Config.SCREEN_WIDTH // 2 - button_width // 2
+        center_y = Config.SCREEN_HEIGHT // 2
+
+        # Vertical spacing
+        spacing_above = 90  # Between Start and Stats
+        spacing_below = 110  # Between Stats and Exit (more space here)
+
+        # Buttons centered horizontally, vertically stacked
+        self.start_button = button.Button(center_x, center_y - spacing_above, self.start_img, button_scale)
+        self.stats_button = button.Button(center_x, center_y, self.stats_img, button_scale)
+        self.exit_button = button.Button(center_x, center_y + spacing_below, self.exit_img, button_scale2)
+
         self.restart_button = button.Button(Config.SCREEN_WIDTH // 2 - 100, Config.SCREEN_HEIGHT // 2 - 50,
                                             self.restart_img, 2)
 
@@ -93,6 +110,9 @@ class Game:
             self.screen.blit(self.pine2_img, ((x * width) - Config.bg_scroll * 0.8,
                                               Config.SCREEN_HEIGHT - self.pine2_img.get_height()))
 
+    def show_stats_screen(self):
+        self.stats.show_all_stats()
+
     # function to reset level
     def reset_level(self):
         self.enemy_group.empty()
@@ -112,6 +132,21 @@ class Game:
 
         return data
 
+    def update_kill_count(self):
+        """Function to increment kill count."""
+        # If an enemy is dead, increase the kill count
+        for enemy in self.enemy_group:
+            if enemy.health <= 0:  # Check if the enemy is dead
+                self.kill_count += 1  # Increase kill count
+                self.enemy_group.remove(enemy)  # Remove the enemy from the group
+                break  # Ensure only one enemy is counted at a time
+
+    def draw_title(self):
+        title_font = pygame.font.SysFont('Arial', 60, bold=True)
+        title_text = title_font.render("Side-Scrolling-Shooter", True, Config.WHITE)
+        title_rect = title_text.get_rect(center=(Config.SCREEN_WIDTH // 2, Config.SCREEN_HEIGHT // 4))
+        self.screen.blit(title_text, title_rect)
+
     def run(self):
         while self.running:
             self.screen.fill((0, 0, 0))  # Clear screen
@@ -120,11 +155,14 @@ class Game:
 
             if self.start_game == False:
                 self.screen.fill(self.BG)
+                self.draw_title()
                 if self.start_button.draw(self.screen):
                     self.start_game = True
                     self.start_intro = True
                 if self.exit_button.draw(self.screen):
                     self.running = False
+                if self.stats_button.draw(self.screen):
+                    self.show_stats_screen()
 
             else:
                 self.draw_bg()
@@ -147,6 +185,10 @@ class Game:
                     enemy.ai(self.player, self.world)
                     enemy.update()
                     enemy.draw(self.screen)
+
+                    # Update and display kill count
+                    self.update_kill_count()  # Update kill count
+                    self.draw_text(f'KILLS: {self.kill_count}', Config.get_font(), Config.WHITE, 10, 85)
 
                 # update and draw world
                 self.decoration_group.update()
@@ -219,6 +261,7 @@ class Game:
                 else:
                     Config.screen_scroll = 0
                     if self.death_fade.fade():
+                        # self.deaths_per_level += 1
                         if self.restart_button.draw(self.screen):
                             self.death_fade.fade_counter = 0
                             self.start_intro = True
