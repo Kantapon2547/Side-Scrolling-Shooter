@@ -55,6 +55,16 @@ class World:
         # iterate through each value in level data file
         for y, row in enumerate(data):
             for x, tile in enumerate(row):
+                # Attempt to convert tile to an integer, handle the error if it fails
+                try:
+                    tile = int(tile)  # Convert tile to integer (if possible)
+                except ValueError:
+                    print(f"Invalid tile value at ({x}, {y}): {tile}")  # Log the error
+                    continue  # Skip this tile or handle it as needed
+
+        # iterate through each value in level data file
+        for y, row in enumerate(data):
+            for x, tile in enumerate(row):
                 if tile >= 0:
                     img = img_list[tile]
                     img_rect = img.get_rect()

@@ -143,7 +143,7 @@ class Game:
 
     def draw_title(self):
         title_font = pygame.font.SysFont('Arial', 60, bold=True)
-        title_text = title_font.render("Side-Scrolling-Shooter", True, Config.WHITE)
+        title_text = title_font.render("Side Scrolling Shooter", True, Config.WHITE)
         title_rect = title_text.get_rect(center=(Config.SCREEN_WIDTH // 2, Config.SCREEN_HEIGHT // 4))
         self.screen.blit(title_text, title_rect)
 

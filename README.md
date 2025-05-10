@@ -31,6 +31,7 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 3. **Prepare Data**: Ensure you have the following CSV files in the project directory:
    - `level_1_.csv`: Contains data for level 1 of a game or application.
    - `level_2_.csv`: Contains data for level 2 of a game or application.
+   - `level_3_.csv`: Contains data for level 3 of a game or application.
 
 4. **Run the Application**: Open a terminal or command prompt, navigate to the project directory, and run the following command:
     ```bash
@@ -56,6 +57,4 @@ Q : Grenades Thrown
 
 Homepage : https://github.com/Kantapon2547/Side-Scrolling-Shooter
 
-Proposal : 
-
-Youtube Link : 
+Proposal : https://docs.google.com/document/d/1RiRdjHtJnhVv64oHVYXSg3_lE3hYz9SE_svdG26-tgs/edit?usp=sharing

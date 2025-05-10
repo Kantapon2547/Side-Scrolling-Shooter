@@ -62,34 +62,27 @@ class StatisticsManager:
         plt.show()
 
     def analyze_grenade_usage_lineplot(self):
-        """Generate a line plot showing grenade usage across different levels."""
-        if 'Grenades Thrown' not in self.df.columns or 'Level' not in self.df.columns:
-            print("Required columns 'Grenades Thrown' or 'Level' not found in CSV.")
+        """Generate a line plot of grenade usage, showing trends across levels."""
+        if 'Grenades Thrown' not in self.df.columns:
+            print("Column 'Grenades Thrown' not found in CSV.")
+            return
+        if 'Level' not in self.df.columns:
+            print("Column 'Level' not found in CSV.")
             return
 
-        # Check for missing data
-        print(f"Missing values in 'Grenades Thrown': {self.df['Grenades Thrown'].isnull().sum()}")
-
-        # Handle missing data
-        self.df = self.df.dropna(subset=['Grenades Thrown'])
-
-        # Ensure 'Grenades Thrown' is numeric
+        # Clean data as above
         self.df['Grenades Thrown'] = pd.to_numeric(self.df['Grenades Thrown'], errors='coerce')
+        self.df.dropna(subset=['Grenades Thrown'], inplace=True)
 
-        # Group by Level and sum grenade usage
-        grenade_usage = self.df.groupby('Level')['Grenades Thrown'].sum().reset_index()
-        print(grenade_usage.head())  # Check the grouped data
+        # Group by 'Level' and calculate the mean grenade usage for each level
+        grenade_usage_by_level = self.df.groupby('Level')['Grenades Thrown'].mean()
 
-        if grenade_usage.empty:
-            print("No data available for grenade usage.")
-            return
-
-        # Plot line chart
-        plt.figure(figsize=(8, 6))
-        plt.plot(grenade_usage['Level'], grenade_usage['Grenades Thrown'], marker='o', color='red')
-        plt.title('Grenade Usage by Level')
+        # Plot the line plot
+        plt.figure(figsize=(10, 6))
+        grenade_usage_by_level.plot(kind='line', marker='o', color='green', linestyle='-', linewidth=2, markersize=8)
+        plt.title('Average Grenades Thrown by Level')
         plt.xlabel('Level')
-        plt.ylabel('Total Grenades Thrown')
+        plt.ylabel('Average Grenades Thrown')
         plt.grid(True)
         plt.tight_layout()
         plt.show()
@@ -194,20 +187,13 @@ class StatisticsManager:
                     ax.text(0.5, 0.5, "Required columns not found", ha='center', va='center')
 
             elif choice == 'Grenade Usage Lineplot':
-                if 'Level' in self.df.columns and 'Grenades Thrown' in self.df.columns:
-                    # Check if there are any missing values in the relevant columns
-                    grenade_data = self.df[['Level', 'Grenades Thrown']].dropna()
-
-                    # Group by Level and sum grenade usage
-                    grenade_usage = grenade_data.groupby('Level')['Grenades Thrown'].sum().reset_index()
-
-                    # Check if grenade_usage contains data
-                    if not grenade_usage.empty:
-                        ax.plot(grenade_usage['Level'], grenade_usage['Grenades Thrown'], marker='o', color='red')
-                        ax.set_title('Grenade Usage by Level')
-                        ax.set_xlabel('Level')
-                        ax.set_ylabel('Total Grenades Thrown')
-                        ax.grid(True)
+                if 'Grenades Thrown' in self.df.columns and 'Level' in self.df.columns:
+                    grouped = self.df.groupby('Level')['Grenades Thrown'].mean()
+                    grouped.plot(kind='line', marker='o', ax=ax, grid=True)
+                    ax.set_title('Average Grenades Thrown by Level')
+                    fig.suptitle('')
+                    ax.set_xlabel('Level')
+                    ax.set_ylabel('Average Grenades Thrown')
                 else:
                     ax.text(0.5, 0.5, "Required columns not found", ha='center', va='center')
 
@@ -240,7 +226,7 @@ class StatisticsManager:
             'Histogram of Damage Taken',
             'Bullets Fired Over Games',
             'Health Remaining by Level',
-            'Grenade Usage by Level',
+            'Grenade Usage Lineplot',
             'Deaths Per Level Analysis'
         ])
         combo.pack(pady=5)
@@ -267,3 +253,8 @@ class StatisticsManager:
         ).pack(pady=20)
 
         win.mainloop()
+
+
+if __name__ == "__main__":
+    sm = StatisticsManager()
+    sm.show_all_stats()

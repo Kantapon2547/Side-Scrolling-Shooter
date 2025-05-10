@@ -14,7 +14,7 @@ class Config:
     COLS = 150
     TILE_SIZE = SCREEN_HEIGHT // ROWS
     TILE_TYPE = 21
-    MAXS_LEVELS = 3
+    MAXS_LEVELS = 4
     level = 1
     EXPLOSION_SPEED = 4
     screen_scroll = 0
