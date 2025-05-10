@@ -55,5 +55,7 @@ Spacebar: Shoot
 Q : Grenades Thrown
 
 Homepage : https://github.com/Kantapon2547/Side-Scrolling-Shooter
-ddddddddddd
+
 Proposal : 
+
+Youtube Link : 
