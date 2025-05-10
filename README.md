@@ -17,7 +17,7 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 
 ## UML Diagram
 
-![](uml_diagram.png)
+![](img/UML class.png)
 
 ## How to Run
 
@@ -37,8 +37,23 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
     python main_game.py
     ```.
 
-10. **Exit the Application**: Close the application window when done.
+5. **Exit the Application**: Close the application window when done.
+
+## 🎮 How to Play
+### Movement Controls:
+
+A : Move left
+
+D : Move right
+
+W : Jump
+
+### Combat Controls:
+
+Spacebar: Shoot
+
+Q : Grenades Thrown
 
 Homepage : https://github.com/Kantapon2547/Side-Scrolling-Shooter
-
+ddddddddddd
 Proposal : 

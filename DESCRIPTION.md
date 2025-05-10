@@ -44,4 +44,4 @@ The game is developed using **Python** and **Pygame**, emphasizing performance, 
 
 ## UML Class Diagram
 
-![UML Class Diagram](https://github.com/your-username/Side-Scrolling-Shooter/blob/main/UML_Diagram.png)
+
