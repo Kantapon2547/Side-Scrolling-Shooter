@@ -17,7 +17,7 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 
 ## UML Diagram
 
-![](img/UML class.png)
+![](img/UML_class.png)
 
 ## How to Run
 
