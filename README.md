@@ -2,9 +2,13 @@
 
 This project is a side-scrolling shooter game where players control a character navigating through different levels while eliminating enemies, avoiding obstacles, and collecting power-ups. The game will include smooth movement mechanics, responsive shooting controls, dynamic enemy behavior, and a scoring system.
 
+---
+
 ## Description
 
 The Side-Scrolling Shooter is an action-packed 2D game where players control a heavily armed character navigating through enemy-infested environments. The game challenges players to defeat waves of enemies, avoid obstacles, and collect power-ups while progressing through levels of increasing difficulty.
+
+---
 
 ## Main Features
 
@@ -14,10 +18,13 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 - Health System: The player has a limited health pool and can pick up health packs to restore lost HP.
 - Power-ups & Upgrades: Players can collect special items, such as weapon upgrades, speed boosts, and temporary invincibility.
 
+---
 
 ## UML Diagram
 
 ![](img/UML_class.png)
+
+---
 
 ## How to Run
 
@@ -40,6 +47,8 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 
 5. **Exit the Application**: Close the application window when done.
 
+---
+
 ## 🎮 How to Play
 ### Movement Controls:
 
@@ -54,6 +63,8 @@ W : Jump
 Spacebar: Shoot
 
 Q : Grenades Thrown
+
+---
 
 Homepage : https://github.com/Kantapon2547/Side-Scrolling-Shooter
 
