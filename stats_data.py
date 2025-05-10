@@ -208,8 +208,6 @@ class StatisticsManager:
                         ax.set_xlabel('Level')
                         ax.set_ylabel('Total Grenades Thrown')
                         ax.grid(True)
-                    else:
-                        ax.text(0.5, 0.5, "No data available for grenade usage", ha='center', va='center')
                 else:
                     ax.text(0.5, 0.5, "Required columns not found", ha='center', va='center')
 
