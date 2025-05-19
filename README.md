@@ -26,24 +26,28 @@ The Side-Scrolling Shooter is an action-packed 2D game where players control a h
 
 ---
 
-## How to Run
+## 🧪 How to Installation & Run
 
 1. **Install Dependencies**: Make sure you have Python installed on your system. You will need to install the following Python packages:
     ```bash
-    pip install 
+    pip install -r requirements.txt
     ```
 
 2. **Download the Repository**: Clone or download the repository to your local machine.
+    ```bash
+    git clone https://github.com/Kantapon2547/Side-Scrolling-Shooter.git
+    ```
 
 3. **Prepare Data**: Ensure you have the following CSV files in the project directory:
    - `level_1_.csv`: Contains data for level 1 of a game or application.
    - `level_2_.csv`: Contains data for level 2 of a game or application.
    - `level_3_.csv`: Contains data for level 3 of a game or application.
+   - `data_collection.csv` : If it has a problem running the data visualization part, you can check it in a .csv file. 
 
 4. **Run the Application**: Open a terminal or command prompt, navigate to the project directory, and run the following command:
     ```bash
-    python main_game.py
-    ```.
+    python main_game.py 
+    ```
 
 5. **Exit the Application**: Close the application window when done.
 
@@ -63,6 +67,35 @@ W : Jump
 Spacebar: Shoot
 
 Q : Grenades Thrown
+
+---
+
+## 🎮 Game Asset Credits
+
+### 🎨 Visual Assets
+
+- **Grenades & Icons**  
+  [mtk – Grenades 16x16](https://mtk.itch.io/grenades-16x16)
+
+- **Pixel Art Backgrounds & UI Elements**  
+  [Eray Zesen – Pixel Platformer Pack](https://erayzesen.itch.io/pixel-platf...)
+
+- **Character & Environment Art**  
+  [Secret Hideout – Team War Assets](https://secrethideout.itch.io/team-wa...)
+
+### 🔊 Audio Assets
+
+- **Bullet Whiz Sound Effect**  
+  [SoundBible – Bullet Whiz](https://soundbible.com/1875-Bullet-Whiz.html)
+
+- **Background Music (Fantasy Theme)**  
+  [SoundImage.org – Fantasy Wonder](https://soundimage.org/fantasywonder/)
+
+### 🧱 Code
+
+- GitHub Repository: [russs123/LevelEditor](https://github.com/russs123/LevelEditor)
+
+- GitHub Repository: [russs123/Shooter](https://github.com/russs123/Shooter)
 
 ---
 

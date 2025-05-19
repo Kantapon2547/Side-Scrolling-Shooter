@@ -41,9 +41,13 @@ The game is developed using **Python** and **Pygame**, emphasizing performance, 
 - **Background Music (Fantasy Theme)**  
   [SoundImage.org – Fantasy Wonder](https://soundimage.org/fantasywonder/)
 
-### 🧱 Source Code for Level Editor Part
+### 🧱 Code
 
 - GitHub Repository: [russs123/LevelEditor](https://github.com/russs123/LevelEditor)
+
+- GitHub Repository: [russs123/Shooter](https://github.com/russs123/Shooter)
+
+---
 
 
 ## UML Class Diagram
